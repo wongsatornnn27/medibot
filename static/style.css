@@ -1,0 +1,96 @@
+:root{
+  --brand:#3b5f36;
+  --bg:#ffffff;
+  --panel:#f2f3f5;
+  --border:#d8dbe2;
+  --text:#1f2937;
+  --muted:#6b7280;
+  --send:#4a7c3a;
+  --send-hover:#3e6a31;
+  --bubble-user:#e8f2e6;
+  --bubble-bot:#ffffff;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Inter, Helvetica, Arial;
+}
+
+/* header */
+.header{width:100%;display:flex;justify-content:center;padding:28px 16px 8px;}
+.logo{margin:0;font-size:clamp(32px,5vw,56px);color:var(--brand);font-weight:800;letter-spacing:.5px}
+
+/* layout */
+.container{max-width:1100px;margin:16px auto 24px;padding:0 16px}
+.stage{display:grid;grid-template-columns:320px 1fr;gap:24px;align-items:start}
+
+/* doctor */
+.doctor{display:flex;justify-content:center;align-items:flex-end;min-height:420px}
+.doctor img{width:min(320px,40vw);height:auto;object-fit:contain;user-select:none}
+
+/* chat panel */
+.chat-card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:18px;
+  /* fixed height so the page doesn't stretch */
+  height: clamp(420px, 70vh, 560px);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;        /* keep internals clipped */
+}
+
+/* messages area (scrolls inside the box) */
+.messages{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:14px;
+  flex:1;                 /* take remaining space */
+  overflow:auto;          /* <-- internal scroll */
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  min-height:0;           /* important so flex children can shrink */
+}
+
+/* bubbles */
+.msg{display:flex;max-width:85%}
+.msg.user{align-self:flex-end;justify-content:flex-end}
+.msg.bot{align-self:flex-start}
+.bubble{
+  padding:10px 12px;border-radius:10px;border:1px solid var(--border);
+  line-height:1.45;white-space:pre-wrap;word-wrap:break-word;font-size:.98rem
+}
+.msg.user .bubble{background:var(--bubble-user)}
+.msg.bot .bubble{background:var(--bubble-bot)}
+
+/* typing indicator */
+.typing{display:inline-flex;gap:6px;align-items:center;color:var(--muted)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--muted);opacity:.4;animation:blink 1.2s infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+
+/* input row */
+.input-bar{margin-top:12px;display:flex;gap:10px;width:100%}
+.input{
+  flex:1;padding:14px 16px;border:1px solid var(--border);border-radius:999px;
+  background:#fff;font-size:1rem;outline:none
+}
+.input:focus{box-shadow:0 0 0 3px #a8d1a0;border-color:#b9d7b3}
+.btn{border:none;padding:12px 22px;border-radius:999px;color:#fff;background:var(--send);cursor:pointer;font-weight:600}
+.btn:hover{background:var(--send-hover)}.btn:disabled{opacity:.6;cursor:not-allowed}
+
+/* responsive */
+@media (max-width:860px){
+  .stage{grid-template-columns:1fr}
+  .doctor{order:-1;min-height:auto}
+  .chat-card{height:clamp(380px,70vh,520px)}
+  .doctor img{width:min(280px,60vw)}
+}
+

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>medibot</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="header">
+    <h1 class="logo">medibot</h1>
+  </header>
+
+  <div class="container">
+    <div class="stage">
+      <!-- LEFT: doctor -->
+      <aside class="doctor">
+        <img id="doctor"
+             alt="doctor"
+             src="{{ url_for('static', filename='img/doctor_idle.png') }}"
+             data-idle="{{ url_for('static', filename='img/doctor_idle.png') }}"
+             data-thinking="{{ url_for('static', filename='img/doctor_thinking.png') }}">
+      </aside>
+
+      <!-- RIGHT: chat panel -->
+      <section class="chat-card">
+        <div id="messages" class="messages" aria-live="polite">
+          <div class="msg bot">
+            <div class="bubble">Hi! Ask a medical question and I’ll answer from your knowledge base.</div>
+          </div>
+        </div>
+
+        <form id="form" class="input-bar" autocomplete="off">
+          <input id="input" class="input" type="text" placeholder="type anything here …">
+          <button id="send" class="btn" type="submit">send</button>
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const form   = document.getElementById('form');
+    const input  = document.getElementById('input');
+    const send   = document.getElementById('send');
+    const list   = document.getElementById('messages');
+    const doctor = document.getElementById('doctor');
+    const idleSrc = doctor.dataset.idle;
+    const thinkingSrc = doctor.dataset.thinking;
+
+    function scrollBottom(){ list.scrollTop = list.scrollHeight; }
+    function appendUser(text){
+      const row = document.createElement('div');
+      row.className = 'msg user';
+      const b = document.createElement('div');
+      b.className = 'bubble';
+      b.textContent = text;
+      row.appendChild(b);
+      list.appendChild(row);
+      scrollBottom();
+    }
+    function appendBot(text){
+      const row = document.createElement('div');
+      row.className = 'msg bot';
+      const b = document.createElement('div');
+      b.className = 'bubble';
+      b.textContent = text;
+      row.appendChild(b);
+      list.appendChild(row);
+      scrollBottom();
+    }
+    function showTyping(){
+      const row = document.createElement('div');
+      row.id = 'typing-row';
+      row.className = 'msg bot';
+      const b = document.createElement('div');
+      b.className = 'bubble';
+      const wrap = document.createElement('span');
+      wrap.className = 'typing';
+      wrap.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
+      b.appendChild(wrap);
+      row.appendChild(b);
+      list.appendChild(row);
+      scrollBottom();
+      doctor.src = thinkingSrc;       // swap to thinking pose
+    }
+    function hideTyping(){
+      const t = document.getElementById('typing-row');
+      if (t) t.remove();
+      doctor.src = idleSrc;           // back to idle pose
+    }
+
+    // Enter to send
+    input.addEventListener('keydown', (e)=>{
+      if (e.key === 'Enter'){
+        e.preventDefault();
+        form.requestSubmit();
+      }
+    });
+
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+
+      appendUser(text);
+      input.value = '';
+      send.disabled = true;
+      showTyping();
+
+      try {
+        // /get expects form data "msg" and returns plain text
+        const fd = new FormData();
+        fd.append('msg', text);
+        const res = await fetch('{{ url_for("chat") }}', { method: 'POST', body: fd });
+
+        if (!res.ok) appendBot(`Server error (${res.status})`);
+        else appendBot(await res.text() || 'No answer.');
+      } catch (err) {
+        console.error(err);
+        appendBot('Network error. Please try again.');
+      } finally {
+        hideTyping();
+        send.disabled = false;
+        input.focus();
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+
