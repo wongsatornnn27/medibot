@@ -1,9 +1,10 @@
 from flask import Flask, render_template, jsonify, request
 from src.helper import download_hugging_face_embedding
-from langchain_pinecone import PineconeSparseVectorStore
 from langchain_openai import OpenAI
-from langchain.chains import create_retrieval_chain
-from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_classic.chains import create_retrieval_chain
+from langchain_classic.chains.combine_documents import (
+    create_stuff_documents_chain,
+)
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_pinecone import PineconeVectorStore
 from dotenv import load_dotenv
